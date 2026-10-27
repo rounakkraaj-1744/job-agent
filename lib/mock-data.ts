@@ -37,6 +37,8 @@ export type Job = {
   currency: "INR" | "USD";
   score: number;
   experience: string;
+  employmentType: "Full-time" | "Internship";
+  graduationEligibility: string;
   posted: string;
   source: string;
   skills: string[];
@@ -75,9 +77,21 @@ export type Contact = {
   role: string;
   companyId: string;
   email: string;
+  linkedinUrl?: string;
+  source: string;
   jobId: string;
   contacted: string;
   status: string;
+};
+
+export type OutreachDraft = {
+  id: string;
+  contactId: string;
+  jobId: string;
+  subject: string;
+  body: string;
+  resumeId: string;
+  updated: string;
 };
 
 export type CalendarEvent = {
@@ -88,6 +102,10 @@ export type CalendarEvent = {
   time: string;
   kind: "Interview" | "Recruiter call" | "Assessment" | "Follow-up" | "Reminder";
   note: string;
+  durationMinutes: number;
+  meetingUrl: string;
+  reminder: string;
+  applicationId: string;
 };
 
 export type FollowUp = {
@@ -101,16 +119,68 @@ export type FollowUp = {
   completed: boolean;
 };
 
+export type SkillCategory =
+  | "Programming languages"
+  | "Backend frameworks"
+  | "Databases"
+  | "Cloud platforms"
+  | "DevOps & infrastructure"
+  | "AI & GenAI"
+  | "Other skills";
+
+export type ProfileSkill = {
+  id: string;
+  name: string;
+  category: SkillCategory;
+};
+
 export type Profile = {
   name: string;
   headline: string;
   email: string;
+  phone: string;
   location: string;
   linkedin: string;
   github: string;
+  portfolio: string;
+  leetcode: string;
+  otherLinks: string;
   targetRoles: string;
   graduationYear: string;
   monthlyMinimum: string;
+  education: string;
+  experience: string;
+  internships: string;
+  projects: string;
+  skills: ProfileSkill[];
+  reviewedFacts: string[];
+};
+
+export type DemoSettings = {
+  displayName: string;
+  timezone: string;
+  dateFormat: string;
+  currency: string;
+  defaultRole: string;
+  targetCompensation: string;
+  preferredLocations: string;
+  workMode: string;
+  jobSources: string;
+  graduationEligibility: string;
+  searchSchedule: string;
+  aiProvider: string;
+  minimumScore: number;
+  discoveryEnabled: boolean;
+  draftingEnabled: boolean;
+  matchExplanations: boolean;
+  reviewBeforeSubmit: boolean;
+  dailyReviewLimit: number;
+  dailyAiLimit: number;
+  interviewReminders: boolean;
+  followUpReminders: boolean;
+  newMatchingJobs: boolean;
+  integrationErrors: boolean;
+  emailNotifications: boolean;
 };
 
 export const workspaceSections: { id: SectionId; label: string }[] = [
@@ -179,7 +249,7 @@ export const initialResumes: Resume[] = [
     target: "Backend / AI Engineer",
     version: "v3",
     updated: "Oct 18, 2026",
-    fileName: "Rounak_Backend_GenAI.pdf",
+    fileName: "Backend_GenAI.pdf",
     fileType: "PDF",
     default: true,
     skills: ["TypeScript", "Node.js", "PostgreSQL", "Python", "LLM APIs"],
@@ -191,7 +261,7 @@ export const initialResumes: Resume[] = [
     target: "Cloud / DevOps Engineer",
     version: "v2",
     updated: "Sep 30, 2026",
-    fileName: "Rounak_Cloud_DevOps.pdf",
+    fileName: "Cloud_DevOps.pdf",
     fileType: "PDF",
     default: false,
     skills: ["AWS", "Docker", "Kubernetes", "Terraform", "CI/CD"],
@@ -203,7 +273,7 @@ export const initialResumes: Resume[] = [
     target: "Platform Engineer",
     version: "v1",
     updated: "Sep 12, 2026",
-    fileName: "Rounak_Platform.pdf",
+    fileName: "Platform_Engineering.pdf",
     fileType: "PDF",
     default: false,
     skills: ["Go", "PostgreSQL", "AWS", "Docker", "Redis"],
@@ -224,6 +294,8 @@ export const initialJobs: Job[] = [
     currency: "INR",
     score: 94,
     experience: "0–2 years",
+    employmentType: "Full-time",
+    graduationEligibility: "2025–2027 graduates",
     posted: "2 days ago",
     source: "Wellfound",
     skills: ["TypeScript", "Node.js", "PostgreSQL", "AWS"],
@@ -238,12 +310,14 @@ export const initialJobs: Job[] = [
     companyId: "orbit",
     location: "Remote, India",
     mode: "Remote",
-    salaryMin: 16,
-    salaryMax: 24,
+    salaryMin: 1600000,
+    salaryMax: 2400000,
     salaryPeriod: "year",
     currency: "INR",
     score: 89,
     experience: "Entry level",
+    employmentType: "Full-time",
+    graduationEligibility: "2025–2027 graduates",
     posted: "Yesterday",
     source: "Company careers",
     skills: ["AWS", "Terraform", "Docker", "Kubernetes"],
@@ -264,6 +338,8 @@ export const initialJobs: Job[] = [
     currency: "INR",
     score: 86,
     experience: "0–1 years",
+    employmentType: "Full-time",
+    graduationEligibility: "2026 graduates",
     posted: "4 days ago",
     source: "Cutshort",
     skills: ["Python", "FastAPI", "PostgreSQL", "LLM APIs"],
@@ -284,12 +360,13 @@ export const initialJobs: Job[] = [
     currency: "INR",
     score: 82,
     experience: "Graduate",
+    employmentType: "Full-time",
+    graduationEligibility: "2025–2026 graduates",
     posted: "1 week ago",
     source: "Indeed",
     skills: ["Node.js", "Express", "MongoDB", "REST APIs"],
     missingSkills: ["Redis"],
-    description:
-      "Join a small backend team improving product APIs and engineering foundations.",
+    description: "Join a small backend team improving product APIs and engineering foundations.",
     resumeId: "resume-platform",
   },
   {
@@ -304,6 +381,8 @@ export const initialJobs: Job[] = [
     currency: "INR",
     score: 78,
     experience: "Internship",
+    employmentType: "Internship",
+    graduationEligibility: "Current students and 2027 graduates",
     posted: "5 days ago",
     source: "Naukri",
     skills: ["Python", "Linux", "Docker", "Git"],
@@ -364,6 +443,8 @@ export const initialContacts: Contact[] = [
     role: "Technical Recruiter",
     companyId: "northstar",
     email: "ananya@northstarlabs.example",
+    linkedinUrl: "https://linkedin.example/in/ananya-rao",
+    source: "Recruiter referral",
     jobId: "job-northstar-backend",
     contacted: "Oct 20, 2026",
     status: "Replied",
@@ -374,6 +455,7 @@ export const initialContacts: Contact[] = [
     role: "Engineering Manager",
     companyId: "orbit",
     email: "rohan@orbitcloud.example",
+    source: "Company website",
     jobId: "job-orbit-cloud",
     contacted: "Oct 22, 2026",
     status: "Awaiting reply",
@@ -384,9 +466,22 @@ export const initialContacts: Contact[] = [
     role: "People Partner",
     companyId: "cedar",
     email: "meera@cedarai.example",
+    source: "LinkedIn research",
     jobId: "job-cedar-ai",
     contacted: "Oct 25, 2026",
     status: "Draft",
+  },
+];
+
+export const initialDrafts: OutreachDraft[] = [
+  {
+    id: "draft-northstar-follow-up",
+    contactId: "contact-ananya",
+    jobId: "job-northstar-backend",
+    subject: "Following up on the Backend Engineer role",
+    body: "Hi Ananya,\n\nI wanted to follow up on the Backend Engineer opportunity and confirm the interview details. Please let me know if there is anything you would like me to prepare.\n\nBest,\nYour name",
+    resumeId: "resume-backend-ai",
+    updated: "Oct 26, 2026",
   },
 ];
 
@@ -399,6 +494,10 @@ export const initialEvents: CalendarEvent[] = [
     time: "10:30",
     kind: "Interview",
     note: "Video call · Backend Engineer",
+    durationMinutes: 45,
+    meetingUrl: "https://meet.example/northstar-interview",
+    reminder: "30 minutes before",
+    applicationId: "app-northstar",
   },
   {
     id: "event-cedar",
@@ -408,6 +507,10 @@ export const initialEvents: CalendarEvent[] = [
     time: "17:00",
     kind: "Assessment",
     note: "Submit take-home assessment",
+    durationMinutes: 60,
+    meetingUrl: "",
+    reminder: "1 day before",
+    applicationId: "app-cedar",
   },
   {
     id: "event-orbit",
@@ -417,6 +520,10 @@ export const initialEvents: CalendarEvent[] = [
     time: "14:00",
     kind: "Follow-up",
     note: "Send a short progress check-in",
+    durationMinutes: 15,
+    meetingUrl: "",
+    reminder: "10 minutes before",
+    applicationId: "app-orbit",
   },
 ];
 
@@ -454,13 +561,50 @@ export const initialFollowUps: FollowUp[] = [
 ];
 
 export const initialProfile: Profile = {
-  name: "Rounak Kumar",
-  headline: "Software Engineer · Backend & Cloud",
-  email: "rounak@example.com",
-  location: "Bengaluru, India",
-  linkedin: "linkedin.com/in/rounakkumar",
-  github: "github.com/rounakkumar",
+  name: "",
+  headline: "",
+  email: "",
+  phone: "",
+  location: "",
+  linkedin: "",
+  github: "",
+  portfolio: "",
+  leetcode: "",
+  otherLinks: "",
   targetRoles: "Backend Engineer, Platform Engineer, AI Engineer",
-  graduationYear: "2026",
-  monthlyMinimum: "90000",
+  graduationYear: "",
+  monthlyMinimum: "",
+  education: "",
+  experience: "",
+  internships: "",
+  projects: "",
+  skills: [],
+  reviewedFacts: [],
+};
+
+export const initialSettings: DemoSettings = {
+  displayName: "",
+  timezone: "Asia/Kolkata",
+  dateFormat: "DD MMM YYYY",
+  currency: "INR",
+  defaultRole: "Backend Engineer",
+  targetCompensation: "",
+  preferredLocations: "",
+  workMode: "Any mode",
+  jobSources: "",
+  graduationEligibility: "Any year",
+  searchSchedule: "Manual only",
+  aiProvider: "Not configured",
+  minimumScore: 75,
+  discoveryEnabled: false,
+  draftingEnabled: true,
+  matchExplanations: true,
+  reviewBeforeSubmit: true,
+  dailyReviewLimit: 5,
+  dailyAiLimit: 25,
+  interviewReminders: true,
+  followUpReminders: true,
+  newMatchingJobs: false,
+  integrationErrors: true,
+  emailNotifications: false,
 };

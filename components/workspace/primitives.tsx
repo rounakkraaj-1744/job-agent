@@ -1,8 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { ApplicationStatus } from "@/lib/mock-data";
 
 const statusColors: Record<ApplicationStatus, string> = {
@@ -33,9 +39,7 @@ export function PageTitle({
         <h1 className="text-[25px] font-semibold tracking-[-0.035em] text-[#1d2b33] sm:text-[28px]">
           {title}
         </h1>
-        <p className="mt-1.5 max-w-2xl text-[13px] leading-5 text-[#76828a]">
-          {description}
-        </p>
+        <p className="mt-1.5 max-w-2xl text-[13px] leading-5 text-[#76828a]">{description}</p>
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>
@@ -56,19 +60,13 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <section
-      className={`rounded-lg border border-[#e6eaed] bg-white ${className}`}
-    >
+    <section className={`rounded-lg border border-[#e6eaed] bg-white ${className}`}>
       {title || description || action ? (
         <div className="flex items-start justify-between gap-3 border-b border-[#edf0f2] px-4 py-3.5 sm:px-5">
           <div>
-            {title ? (
-              <h2 className="text-[13px] font-semibold text-[#2a3941]">{title}</h2>
-            ) : null}
+            {title ? <h2 className="text-[13px] font-semibold text-[#2a3941]">{title}</h2> : null}
             {description ? (
-              <p className="mt-1 text-[11px] leading-4 text-[#849098]">
-                {description}
-              </p>
+              <p className="mt-1 text-[11px] leading-4 text-[#849098]">{description}</p>
             ) : null}
           </div>
           {action}
@@ -98,7 +96,12 @@ export function CompanyMark({
   initials?: string;
   size?: "sm" | "md" | "lg";
 }) {
-  const text = initials ?? name.split(" ").map((word) => word[0]).join("");
+  const text =
+    initials ??
+    name
+      .split(" ")
+      .map((word) => word[0])
+      .join("");
   const sizes = {
     sm: "size-7 text-[9px]",
     md: "size-9 text-[10px]",
@@ -136,45 +139,42 @@ export function Modal({
   wide?: boolean;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-[#162129]/35 p-3 sm:p-6"
-      onMouseDown={(event) => {
-        if (event.currentTarget === event.target) onClose();
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") onClose();
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
     >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-heading"
-        className={`max-h-[min(90vh,900px)] w-full overflow-y-auto rounded-xl border border-[#e0e5e8] bg-white shadow-xl ${
-          wide ? "max-w-3xl" : "max-w-xl"
+      <DialogContent
+        aria-describedby={description ? "modal-description" : undefined}
+        showCloseButton={false}
+        className={`max-h-[min(90vh,900px)] w-[calc(100%-1.5rem)] max-w-3xl gap-0 overflow-y-auto rounded-xl border border-[#e0e5e8] bg-white p-0 shadow-xl sm:w-full ${
+          wide ? "sm:max-w-3xl" : "sm:max-w-xl"
         }`}
       >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-[#edf0f2] bg-white px-5 py-4">
           <div>
-            <h2 id="modal-heading" className="text-[16px] font-semibold text-[#23323a]">
+            <DialogTitle className="text-[16px] font-semibold text-[#23323a]">
               {title}
-            </h2>
+            </DialogTitle>
             {description ? (
-              <p className="mt-1 text-xs leading-5 text-[#7b878e]">{description}</p>
+              <DialogDescription
+                id="modal-description"
+                className="mt-1 text-xs leading-5 text-[#7b878e]"
+              >
+                {description}
+              </DialogDescription>
             ) : null}
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Close dialog"
-            onClick={onClose}
-          >
-            <IconX size={17} />
-          </Button>
+          <DialogClose asChild>
+            <Button type="button" variant="ghost" size="icon-sm" aria-label="Close dialog">
+              <span aria-hidden="true">×</span>
+            </Button>
+          </DialogClose>
         </div>
         <div className="p-5">{children}</div>
-      </section>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -183,16 +183,21 @@ export function Notice({
   tone = "info",
 }: {
   children: ReactNode;
-  tone?: "info" | "success" | "warning";
+  tone?: "info" | "success" | "warning" | "error";
 }) {
   const styles = {
     info: "border-[#dbe7eb] bg-[#f4f8f9] text-[#42616f]",
     success: "border-[#d8e8dd] bg-[#f2f8f4] text-[#477159]",
     warning: "border-[#e9e2d5] bg-[#faf7f0] text-[#7e6944]",
+    error: "border-destructive/30 bg-destructive/5 text-destructive",
   };
 
   return (
-    <div className={`rounded-md border px-3 py-2.5 text-xs leading-5 ${styles[tone]}`}>
+    <div
+      role={tone === "error" || tone === "warning" ? "alert" : "status"}
+      aria-live={tone === "error" ? "assertive" : "polite"}
+      className={`rounded-md border px-3 py-2.5 text-xs leading-5 ${styles[tone]}`}
+    >
       {children}
     </div>
   );
@@ -212,9 +217,7 @@ export function Field({
       <span className="mb-1.5 block">{label}</span>
       {children}
       {hint ? (
-        <span className="mt-1 block text-[10px] font-normal text-[#8a959c]">
-          {hint}
-        </span>
+        <span className="mt-1 block text-[10px] font-normal text-[#8a959c]">{hint}</span>
       ) : null}
     </label>
   );
@@ -223,19 +226,11 @@ export function Field({
 export const controlClass =
   "h-9 w-full rounded-md border border-[#dfe5e8] bg-white px-3 text-xs text-[#26343c] outline-none transition-colors placeholder:text-[#a0a9ae] focus:border-[#7da4b2] focus:ring-2 focus:ring-[#4d879b]/15";
 
-export function EmptyState({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+export function EmptyState({ title, description }: { title: string; description: string }) {
   return (
     <div className="px-5 py-10 text-center">
       <p className="text-sm font-medium text-[#3a4850]">{title}</p>
-      <p className="mx-auto mt-1.5 max-w-md text-xs leading-5 text-[#818c93]">
-        {description}
-      </p>
+      <p className="mx-auto mt-1.5 max-w-md text-xs leading-5 text-[#818c93]">{description}</p>
     </div>
   );
 }
